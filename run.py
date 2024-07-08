@@ -15,7 +15,7 @@ parser.add_argument('--model', required=False, default='claude-3-5-sonnet@202406
 parser.add_argument('--project', required=True, help='프로젝트 아이디')
 parser.add_argument('--token', required=True, help='봇 토큰')
 parser.add_argument('--channel', required=True, help='채널 아이디')
-parser.add_argument('--kor', required=False, default=true, help='한글입출력')
+parser.add_argument('--kor', required=False, default=True, help='한글입출력')
 parser.add_argument('--limit', required=False, default=20, help='최대 컨텍스트')
 
 args = parser.parse_args()
