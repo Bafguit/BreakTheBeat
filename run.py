@@ -7,8 +7,6 @@ import subprocess
 import discord
 import json
 import re
-from PIL import Image
-from PIL.ExifTags import ExifTags
 from anthropic import AnthropicVertex
 
 parser = argparse.ArgumentParser()
