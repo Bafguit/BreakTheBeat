@@ -128,6 +128,8 @@ def load_prompt():
 
     sys_prompt = sys_prompt + txt
 
+  #print(sys_prompt)
+
   PROMPT["prompt"] = sys_prompt
 
   MAX_TOKEN = pmpt["maxResponse"]
@@ -166,7 +168,7 @@ class MyClient(discord.Client):
 
           role = "assistant"
 
-          async for msg in message.channel.history(limit=LIMIT):
+          async for msg in message.channel.history(limit=int(LIMIT)):
 
             t = msg.content
 
@@ -241,6 +243,8 @@ def generate(context):
   )
 
   res_content = message.content
+
+  #print(res_content[0].text)
 
   msg = re.sub('^"', '', re.sub('"$', '', res_content[0].text))
 
