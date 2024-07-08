@@ -7,6 +7,7 @@ import subprocess
 import discord
 import json
 import re
+import tracemalloc
 from anthropic import AnthropicVertex
 
 parser = argparse.ArgumentParser()
