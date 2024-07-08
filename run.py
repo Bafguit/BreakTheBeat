@@ -30,8 +30,11 @@ CHANNEL_ID = args.channel
 KOR = args.kor
 LIMIT = args.limit
 
+PROMPT = {
+  "prompt": ""
+}
+
 HANGEUL = "\n[Respond Language Instruction]\n- Be sure to respond in native Korean. Any language input is recognized as Korean and always responds in Korean. Write realistic, native Korean dialogue, taking care not to make it feel like a translation of English.\n"
-PROMPT = ""
 MAX_TOKEN = 800
 
 def load_prompt():
@@ -47,16 +50,20 @@ def load_prompt():
   for tmp in temp:
     tp = tmp["type"]
     if tp == "description":
-      txt = re.sub('\{\{slot\}\}', ch_desc, tmp["text"])
+      txt = re.sub('\{\{slot\}\}', ch_desc, tmp["innerFormat"])
     elif tp == "authornote":
       txt = tmp["text"] + HANGEUL
+    elif tp == "plain" and tmp["role"] != "system":
+      pass
     else:
       txt = tmp["text"]
     txt = re.sub('\{\{char\}\}', ch_name, txt)
     txt = re.sub('\{\{user\}\}', "User", txt)
-    sys_prompt = sys_prompt + re.sub('^\{\{#if.*\{\{\/if\}\}', '', txt)
-  PROMPT = sys_prompt
-  MAX_TOKEN = temp["maxResponse"]
+    
+    sys_prompt = sys_prompt + sub
+  print(sys_prompt)
+  PROMPT["prompt"] = sys_prompt
+  MAX_TOKEN = pmpt["maxResponse"]
       
       
  
@@ -91,6 +98,9 @@ class MyClient(discord.Client):
               m.insert(0, {"role": c, "content": t.replace("!new", "")})
               break
             m.insert(0, {"role": c, "content": msg.content})
+          if PROMPT["prompt"] == "":
+            raise
+          print(m)
           async with message.channel.typing():
             await message.channel.send(generate(m))
         except Exception as e:
@@ -103,15 +113,15 @@ def generate(context):
   message = client.messages.create(
     max_tokens=MAX_TOKEN,
     messages=context,
-    system = PROMPT,
+    system = PROMPT["prompt"],
     model=MODEL,
     top_p = 1.0,
     temperature = 1.0,
   )
   res_content = message.content
-  response = res_content[0].text
+  msg = re.sub('^"', '', re.sub('"$', '', res_content[0].text))
 
-  return response
+  return msg
 
 
 intents = discord.Intents.default()
