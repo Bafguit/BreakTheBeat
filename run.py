@@ -10,6 +10,8 @@ import re
 import tracemalloc
 from anthropic import AnthropicVertex
 
+tracemalloc.start()
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--model', required=False, default='claude-3-5-sonnet@20240620', help='모델')
@@ -30,6 +32,7 @@ LIMIT = args.limit
 
 HANGEUL = "\n[Respond Language Instruction]\n- Be sure to respond in native Korean. Any language input is recognized as Korean and always responds in Korean. Write realistic, native Korean dialogue, taking care not to make it feel like a translation of English.\n"
 PROMPT = ""
+MAX_TOKEN = 800
 
 def load_prompt():
   with open('prompt.json') as file:
@@ -53,6 +56,7 @@ def load_prompt():
     txt = re.sub('\{\{user\}\}', "User", txt)
     sys_prompt = sys_prompt + re.sub('^\{\{#if.*\{\{\/if\}\}', '', txt)
   PROMPT = sys_prompt
+  MAX_TOKEN = temp["maxResponse"]
       
       
  
@@ -61,6 +65,7 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
         channel = self.get_channel(CHANNEL_ID)
+        load_prompt()
         await self.change_presence(status=discord.Status.online)
 
     async def on_message(self, message):
@@ -89,13 +94,14 @@ class MyClient(discord.Client):
           async with message.channel.typing():
             await message.channel.send(generate(m))
         except Exception as e:
-          message.channel.send(e)
+          print(e)
+          await message.channel.send(e)
           
 
 def generate(context):
   client = AnthropicVertex(region='us-east5', project_id=PROJECT_ID)
   message = client.messages.create(
-    max_tokens=12000,
+    max_tokens=MAX_TOKEN,
     messages=context,
     system = PROMPT,
     model=MODEL,
