@@ -60,8 +60,7 @@ def load_prompt():
     txt = re.sub('\{\{char\}\}', ch_name, txt)
     txt = re.sub('\{\{user\}\}', "User", txt)
     
-    sys_prompt = sys_prompt + sub
-  print(sys_prompt)
+    sys_prompt = sys_prompt + txt
   PROMPT["prompt"] = sys_prompt
   MAX_TOKEN = pmpt["maxResponse"]
       
