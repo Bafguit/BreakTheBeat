@@ -74,6 +74,8 @@ PROMPT = {
 
   "prompt": ""
 
+  "char_name": ""
+
 }
 
 
@@ -104,7 +106,7 @@ def load_prompt():
 
   ch_desc = cht["data"]["description"]
 
-  ch_lore = cht["data"]["entries"]
+  ch_lore = cht["data"]["character_book"]["entries"]
 
   for lore in ch_lore:
 
@@ -162,15 +164,13 @@ def load_prompt():
 
       txt = tmp["text"]
 
-    txt = re.sub('\{\{char\}\}', ch_name, txt)
-
-    txt = re.sub('\{\{user\}\}', "User", txt)
-
     
 
     sys_prompt = sys_prompt + txt
 
   #print(sys_prompt)
+
+  PROMPT["char_name"] = ch_name
 
   PROMPT["prompt"] = sys_prompt
 
@@ -246,6 +246,10 @@ class MyClient(discord.Client):
 
           PROMPT["prompt"] = re.sub('\{\{lore\}\}', lorebook(m), PROMPT["prompt"])
 
+          PROMPT["prompt"] = re.sub('\{\{char\}\}', PROMPT["char_name"], PROMPT["prompt"])
+
+          PROMPT["prompt"] = re.sub('\{\{user\}\}', "User", PROMPT["prompt"])
+
           if PROMPT["prompt"] == "":
 
             raise
@@ -276,7 +280,7 @@ def lorebook(msg):
 
   for ms in msg:
 
-    m = m + ms.content
+    m = m + ms["content"]
 
   for ll in LORE_CONSTANT:
 
