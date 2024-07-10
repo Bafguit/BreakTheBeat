@@ -62,6 +62,14 @@ LIMIT = args.limit
 
 
 
+LORE = []
+
+
+
+LORE_CONSTANT = []
+
+
+
 PROMPT = {
 
   "prompt": ""
@@ -96,6 +104,36 @@ def load_prompt():
 
   ch_desc = cht["data"]["description"]
 
+  ch_lore = cht["data"]["entries"]
+
+  for lore in ch_lore:
+
+    if lore["enabled"]:
+
+      ckey = lore["constant"]
+
+      new_lore = {
+
+        "name": lore["name"],
+
+        "keys": lore["keys"],
+
+        "content": lore["content"],
+
+        "order": lore["insertion_order"],
+
+        "constant": ckey,
+
+      }
+
+      if ckey:
+
+        LORE_CONSTANT.append(new_lore)
+
+      else:
+
+        LORE.append(new_lore)
+
   for tmp in temp:
 
     tp = tmp["type"]
@@ -111,6 +149,10 @@ def load_prompt():
       if KOR:
 
         txt = txt + HANGEUL
+
+    elif tp == "lorebook":
+
+      txt = "{{lore}}\n\n"
 
     elif tp == "plain" and tmp["role"] != "system":
 
@@ -202,11 +244,15 @@ class MyClient(discord.Client):
 
             m.insert(0, {"role": c, "content": msg.content})
 
+          PROMPT["prompt"] = re.sub('\{\{lore\}\}', lorebook(m), PROMPT["prompt"])
+
           if PROMPT["prompt"] == "":
 
             raise
 
-          print(m)
+          #print(m)
+
+          
 
           async with message.channel.typing():
 
@@ -217,6 +263,46 @@ class MyClient(discord.Client):
           print(e)
 
           await message.channel.send(e)
+
+          
+
+
+
+def lorebook(msg):
+
+  lores = []
+
+  m = ""
+
+  for ms in msg:
+
+    m = m + ms.content
+
+  for ll in LORE_CONSTANT:
+
+    lores.append(ll)
+
+  for lore in LORE:
+
+    for key in lore["keys"]:
+
+      if key in m:
+
+        lores.append(lore)
+
+        break
+
+  lores.sort(key = lambda x:x["order"])
+
+  lm = ""
+
+  for lor in lores:
+
+    lm = lm + "\n\n" + lor["content"]
+
+  return lm
+
+        
 
           
 
