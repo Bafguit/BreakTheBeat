@@ -42,6 +42,8 @@ parser.add_argument('--kor', required=False, default=True, help='한글입출력
 
 parser.add_argument('--limit', required=False, default=20, help='최대 컨텍스트')
 
+parser.add_argument('--log', required=False, default=False, help='로그')
+
 
 
 args = parser.parse_args()
@@ -59,6 +61,7 @@ CHANNEL_ID = args.channel
 KOR = args.kor
 
 LIMIT = args.limit
+LOG_ON = args.log
 
 
 
@@ -83,6 +86,12 @@ PROMPT = {
 HANGEUL = "\n[Respond Language Instruction]\n- Be sure to respond in native Korean. Any language input is recognized as Korean and always responds in Korean. Write realistic, native Korean dialogue, taking care not to make it feel like a translation of English.\n"
 
 MAX_TOKEN = 800
+
+def logg(log):
+  if LOG_ON:
+    print(log)
+  else:
+    pass
 
 
 
@@ -200,7 +209,7 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
 
-        if message.author == self.user or message.author.bot:
+        if message.author.bot:
 
             return
 
@@ -216,7 +225,7 @@ class MyClient(discord.Client):
 
             c = ""
 
-            if msg.author == self.user or message.author.bot:
+            if message.author.bot:
 
               if role == "assistant":
 
@@ -254,8 +263,6 @@ class MyClient(discord.Client):
 
             raise
 
-          #print(m)
-
           
 
           async with message.channel.typing():
@@ -263,8 +270,8 @@ class MyClient(discord.Client):
             await message.channel.send(generate(m))
 
         except Exception as e:
-
-          print(e)
+          text = "Error: " + e
+          logg(text)
 
           await message.channel.send(e)
 
@@ -314,6 +321,9 @@ def lorebook(msg):
 
 def generate(context):
 
+  text = "System: " + PROMPT["prompt"] + "\n" + "Chat: " + context
+  logg(text)
+  
   client = AnthropicVertex(region='us-east5', project_id=PROJECT_ID)
 
   message = client.messages.create(
@@ -334,7 +344,8 @@ def generate(context):
 
   res_content = message.content
 
-  #print(res_content[0].text)
+  text = "Response: " + res_content[0].text
+  logg(text)
 
   msg = re.sub('^"', '', re.sub('"$', '', res_content[0].text))
 
