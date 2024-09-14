@@ -270,7 +270,7 @@ class MyClient(discord.Client):
             await message.channel.send(generate(m))
 
         except Exception as e:
-          text = "Error: " + e
+          text = "Error: " + str(e)
           logg(text)
 
           await message.channel.send(e)
@@ -321,7 +321,7 @@ def lorebook(msg):
 
 def generate(context):
 
-  text = "System: " + PROMPT["prompt"] + "\n" + "Chat: " + context
+  text = "System: " + str(PROMPT["prompt"]) + "\nChat: " + str(context)
   logg(text)
   
   client = AnthropicVertex(region='us-east5', project_id=PROJECT_ID)
