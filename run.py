@@ -75,9 +75,9 @@ LORE_CONSTANT = []
 
 PROMPT = {
 
-  "prompt": ""
+  "prompt": "",
 
-  "char_name": ""
+  "char_name": "",
 
 }
 
